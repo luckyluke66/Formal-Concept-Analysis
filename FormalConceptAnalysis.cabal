@@ -28,7 +28,9 @@ library
         FormalConceptAnalysis.Algorithm.Algorithm,
         FormalConceptAnalysis.Format.CSV
 
-    -- other-modules:
+    other-modules:
+        FormalConceptAnalysis.Internal.Internal
+
     -- other-extensions:
     build-depends:    
         base ^>=4.16.4.0,

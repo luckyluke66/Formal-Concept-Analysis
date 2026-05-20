@@ -5,12 +5,20 @@ module FormalConceptAnalysis.Context
     , Attributes
     , Incidence
     , Context (..)
+    , mkAttrs
+    , mkObjs
     , mkContext
-    , contextRows
     , row
     , column
+    , contextRows
+    , up
+    , down
+    , closeObj
+    , closeAttr
     ) where
 
+
+import FormalConceptAnalysis.Internal.Internal
 import Data.List (intercalate, transpose)
 import qualified Data.Vector as V
 import Data.Maybe (fromJust)
@@ -27,6 +35,13 @@ data Context = Context
     , incidence :: Incidence
     }
     deriving (Eq)
+
+mkObjs :: [a] -> V.Vector a
+mkObjs = V.fromList
+
+
+mkAttrs :: [a] -> V.Vector a
+mkAttrs = V.fromList
 
 mkContext :: Objects -> Attributes -> Incidence -> Either String Context
 mkContext objs attrs inc
@@ -87,3 +102,19 @@ column c attr = V.map fst $ V.filter snd (V.zip (objects c) colRelation)
     where 
         idx = fromJust $ V.elemIndex attr (attributes c)
         colRelation = V.map (V.! idx) (incidence c)
+
+
+up :: Context -> Objects -> Attributes
+up c objs = intersects (attributes c) rows
+    where rows = V.map (row c) objs
+
+
+down :: Context -> Attributes -> Objects
+down c attrs = intersects (objects c) cols
+    where cols = V.map (column c) attrs
+
+closeObj :: Context -> Objects -> Objects
+closeObj c = down c . up c
+
+closeAttr :: Context -> Objects -> Objects
+closeAttr c = up c . down c
