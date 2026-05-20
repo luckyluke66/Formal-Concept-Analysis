@@ -1,8 +1,9 @@
 module Main (main) where
 
 import FormalConceptAnalysis.Format.CSV (fromCSVFile)
+import FormalConceptAnalysis.Format.Lattice (formatCoverRelation, formatLevels)
 import FormalConceptAnalysis.Context
-import qualified Data.Vector as V
+import FormalConceptAnalysis.Algorithm.Naive
 
 
 mkContext' :: Either String Context -> Context
@@ -14,8 +15,10 @@ main :: IO ()
 main = do
     result <- fromCSVFile "test/data/sample-context.csv"
     let context = mkContext' result
-    let up' = up context
-    let down' = down context
+    let concepts = allSubsets context
+
     print context
-    print $ down' $ up' (V.singleton "duck")
-    print$ column context "swims"
+    print "_______________"
+    putStrLn $ formatLevels concepts
+    putStrLn $ formatCoverRelation concepts
+

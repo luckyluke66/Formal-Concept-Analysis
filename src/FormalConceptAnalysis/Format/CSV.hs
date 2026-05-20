@@ -8,6 +8,7 @@ import Data.Char (isSpace, toLower)
 import Data.List (intercalate)
 import qualified Data.Vector as V
 import FormalConceptAnalysis.Context
+import FormalConceptAnalysis.Format.Context (contextRows)
 
 fromCSVFile :: FilePath -> IO (Either String Context)
 fromCSVFile path = fromCSV <$> readFile path

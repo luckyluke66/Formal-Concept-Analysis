@@ -26,10 +26,14 @@ library
         FormalConceptAnalysis.Context,
         FormalConceptAnalysis.Concept,
         FormalConceptAnalysis.Algorithm.Algorithm,
-        FormalConceptAnalysis.Format.CSV
+        FormalConceptAnalysis.Algorithm.Naive,
+        FormalConceptAnalysis.Format.Context,
+        FormalConceptAnalysis.Format.CSV,
+        FormalConceptAnalysis.Format.Lattice
 
     other-modules:
-        FormalConceptAnalysis.Internal.Internal
+        FormalConceptAnalysis.Internal.Internal,
+        FormalConceptAnalysis.Internal.ContextFormat
 
     -- other-extensions:
     build-depends:    
