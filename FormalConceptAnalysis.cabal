@@ -1,0 +1,50 @@
+cabal-version:      3.0
+name:               FormalConceptAnalysis
+version:            0.1.0.0
+synopsis:
+    Package providing basic algorithms for Formal concept analysis.
+
+-- description:
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Lukas Balog
+maintainer:         lukasbalog66@gmail.com
+-- copyright:
+category:           Math
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+extra-source-files: test/data/sample-context.csv
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:  
+        FormalConceptAnalysis,
+        FormalConceptAnalysis.Context,
+        FormalConceptAnalysis.Concept,
+        FormalConceptAnalysis.Algorithm.Algorithm,
+        FormalConceptAnalysis.Format.CSV
+
+    -- other-modules:
+    -- other-extensions:
+    build-depends:    
+        base ^>=4.16.4.0,
+        vector
+    hs-source-dirs:   src
+    default-language: Haskell2010
+
+test-suite FormalConceptAnalysis-test
+    import:           warnings
+    default-language: Haskell2010
+    -- other-modules:
+    -- other-extensions:
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.16.4.0,
+        FormalConceptAnalysis,
+        vector
