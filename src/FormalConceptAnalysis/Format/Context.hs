@@ -7,9 +7,9 @@ import FormalConceptAnalysis.Context (Context (..))
 import FormalConceptAnalysis.Internal.ContextFormat (contextRowsFromParts, formatContextFromParts)
 
 contextRows :: Context -> [[String]]
-contextRows context =
-    contextRowsFromParts (objects context) (attributes context) (incidence context)
+contextRows (Context objs attrs inc) =
+    contextRowsFromParts objs attrs inc
 
 formatContext :: Context -> String
-formatContext context =
-    formatContextFromParts (objects context) (attributes context) (incidence context)
+formatContext (Context objs attrs inc) =
+    formatContextFromParts objs attrs inc

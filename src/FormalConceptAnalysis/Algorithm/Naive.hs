@@ -6,7 +6,7 @@ import FormalConceptAnalysis.Internal.Internal
 import qualified Data.Vector as V
 
 
-allSubsets :: Context -> V.Vector Concept
+allSubsets :: FormalContext ctx => ctx -> V.Vector Concept
 allSubsets c = V.map (fromExtent c) closedExtents
     where
         candidateExtents = subsetsVec (objects c)
