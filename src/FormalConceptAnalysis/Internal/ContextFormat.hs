@@ -5,15 +5,19 @@ module FormalConceptAnalysis.Internal.ContextFormat
 
 import Data.List (intercalate, transpose)
 import qualified Data.Vector as V
+import Data.Map (Map)
+import qualified Data.Map as M
 
-contextRowsFromParts :: V.Vector String -> V.Vector String -> V.Vector (V.Vector Bool) -> [[String]]
-contextRowsFromParts objectNames attributeNames incidenceRows = headerRow : dataRows
-  where
-    headerRow = "" : V.toList attributeNames
-    dataRows = zipWith renderRow (V.toList objectNames) (V.toList incidenceRows)
+contextRowsFromParts :: V.Vector String -> V.Vector String -> Map (String, String) Bool -> [[String]]
+contextRowsFromParts objectNames attributeNames incidenceMap = headerRow : dataRows
+    where
+        headerRow = "" : V.toList attributeNames
+        attrs = V.toList attributeNames
+        objs = V.toList objectNames
+        dataRows = map renderRow objs
 
-    renderRow objectName incidenceRow =
-        objectName : map boolToCell (V.toList incidenceRow)
+        renderRow objectName =
+            objectName : map (\attr -> boolToCell (M.findWithDefault False (objectName, attr) incidenceMap)) attrs
 
 boolToCell :: Bool -> String
 boolToCell True = "1"
@@ -26,6 +30,6 @@ formatMatrix rows = unlines (map renderRow rows)
     renderRow currentRow = intercalate " | " (zipWith padRight columnWidths currentRow)
     padRight width value = value ++ replicate (width - length value) ' '
 
-formatContextFromParts :: V.Vector String -> V.Vector String -> V.Vector (V.Vector Bool) -> String
-formatContextFromParts objectNames attributeNames incidenceRows =
-    formatMatrix (contextRowsFromParts objectNames attributeNames incidenceRows)
+formatContextFromParts :: V.Vector String -> V.Vector String -> Map (String, String) Bool -> String
+formatContextFromParts objectNames attributeNames incidenceMap =
+  formatMatrix (contextRowsFromParts objectNames attributeNames incidenceMap)

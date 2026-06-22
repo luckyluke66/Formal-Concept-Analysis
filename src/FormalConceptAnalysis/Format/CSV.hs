@@ -9,6 +9,7 @@ import Data.List (intercalate)
 import qualified Data.Vector as V
 import FormalConceptAnalysis.Context
 import FormalConceptAnalysis.Format.Context (contextRows)
+import qualified Data.Map as M
 
 fromCSVFile :: FilePath -> IO (Either String Context)
 fromCSVFile path = fromCSV <$> readFile path
@@ -26,8 +27,7 @@ buildContext :: [String] -> [[String]] -> Either String Context
 buildContext header rows
     | length header < 2 = Left "CSV header must contain an empty corner cell and at least one attribute."
     | null attrs = Left "CSV must define at least one attribute."
-    | otherwise =
-        mapM parseObjectRow (zip [2 ..] rows) >>= toContext
+    | otherwise = mapM parseObjectRow (zip [2 ..] rows) >>= toContext
   where
     attrs = drop 1 header
 
@@ -35,32 +35,19 @@ buildContext header rows
     parseObjectRow (lineNumber, cellsWithObject)
         | length cellsWithObject /= length header =
             Left $
-                "Row "
-                    ++ show lineNumber
-                    ++ " has "
-                    ++ show (length cellsWithObject)
-                    ++ " columns, but the header has "
-                    ++ show (length header)
-                    ++ "."
-        | null objectName =
-            Left $ "Row " ++ show lineNumber ++ " is missing an object name in the first column."
-        | otherwise =
-            Right (objectName, cells)
+                "Row " ++ show lineNumber ++ " has " ++ show (length cellsWithObject) ++ " columns, but the header has " ++ show (length header) ++ "."
+        | null objectName = Left $ "Row " ++ show lineNumber ++ " is missing an object name in the first column."
+        | otherwise = Right (objectName, cells)
       where
         objectName = head cellsWithObject
         cells = tail cellsWithObject
 
     toContext :: [(String, [String])] -> Either String Context
-    toContext objectRows =
-        mkContext objectNames attributeNames incidenceMatrix
+    toContext objectRows = Right $ Context objectNames attributeNames incidenceMap
       where
         objectNames = V.fromList (map fst objectRows)
         attributeNames = V.fromList attrs
-        incidenceMatrix =
-            V.fromList
-                [ V.fromList (map isMarked cells)
-                | (_, cells) <- objectRows
-                ]
+        incidenceMap = M.fromList [ ((obj, attr), isMarked cell) | (obj, cells) <- objectRows, (attr, cell) <- zip attrs cells ]
 
 parseRow :: String -> [String]
 parseRow = map trim . splitComma
