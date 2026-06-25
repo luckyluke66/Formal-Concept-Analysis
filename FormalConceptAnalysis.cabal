@@ -26,13 +26,20 @@ library
         FormalConceptAnalysis.Context,
         FormalConceptAnalysis.Concept,
         FormalConceptAnalysis.Algorithm.Algorithm,
-        FormalConceptAnalysis.Format.CSV
+        FormalConceptAnalysis.Algorithm.Naive,
+        FormalConceptAnalysis.Format.Context,
+        FormalConceptAnalysis.Format.CSV,
+        FormalConceptAnalysis.Format.Lattice
 
-    -- other-modules:
+    other-modules:
+        FormalConceptAnalysis.Internal.Internal,
+        FormalConceptAnalysis.Internal.ContextFormat
+
     -- other-extensions:
     build-depends:    
-        base ^>=4.16.4.0,
-        vector
+        base >=4.18 && <4.19,
+        vector,
+        containers
     hs-source-dirs:   src
     default-language: Haskell2010
 
@@ -45,6 +52,6 @@ test-suite FormalConceptAnalysis-test
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base ^>=4.16.4.0,
-        FormalConceptAnalysis,
+        base >=4.18 && <4.19,
+        FormalConceptAnalysis ^>=0.1.0.0,
         vector

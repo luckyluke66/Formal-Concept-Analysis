@@ -5,85 +5,60 @@ module FormalConceptAnalysis.Context
     , Attributes
     , Incidence
     , Context (..)
-    , mkContext
-    , contextRows
-    , row
-    , column
+    , FormalContext (..)
+    , mkAttrs
+    , mkObjs
     ) where
 
-import Data.List (intercalate, transpose)
+
+import FormalConceptAnalysis.Internal.Internal
+import FormalConceptAnalysis.Internal.ContextFormat
 import qualified Data.Vector as V
-import Data.Maybe (fromJust)
+import Data.Map (Map, (!))
+
 
 type Object = String
 type Attribute = String
 type Objects = V.Vector Object
 type Attributes = V.Vector Attribute
-type Incidence = V.Vector (V.Vector Bool)
+type Incidence = (Map (Object, Attribute) Bool)
 
-data Context = Context
-    { objects :: Objects
-    , attributes :: Attributes
-    , incidence :: Incidence
-    }
+
+data Context = Context Objects Attributes Incidence
     deriving (Eq)
 
-mkContext :: Objects -> Attributes -> Incidence -> Either String Context
-mkContext objs attrs inc
-    | V.length inc /= V.length objs =
-        Left "Incidence row count must match the number of objects."
-    | not (allRowsMatchAttributeCount inc attributeCount) =
-        Left "Each incidence row must have the same length as the number of attributes."
-    | otherwise =
-        Right
-            Context
-                { objects = objs
-                , attributes = attrs
-                , incidence = inc
-                }
-    where attributeCount = V.length attrs
+class FormalContext c where
+    row :: c -> Object -> Attributes
+    col :: c -> Attribute -> Objects
+    up :: c -> Objects -> Attributes
+    down :: c -> Attributes -> Objects
+    closeObj :: c -> Objects -> Objects
+    closeObj ctx = down ctx . up ctx
+    closeAttr :: c -> Attributes -> Attributes
+    closeAttr ctx = up ctx . down ctx
+    objects :: c -> Objects
+    attributes :: c -> Attributes
+    incidence :: c -> Incidence
 
 instance Show Context where
-    show = formatMatrix . contextRows
+    show (Context o a i) = formatContextFromParts o a i
 
 
-contextRows :: Context -> [[String]]
-contextRows context = headerRow : dataRows
-    where
-        objectNames = V.toList (objects context)
-        attributeNames = V.toList (attributes context)
-        incidenceRows = V.toList (incidence context)
-        headerRow = "" : attributeNames
-        dataRows = zipWith renderRow objectNames incidenceRows
-        renderRow objectName incidenceRow = objectName : map boolToCell (V.toList incidenceRow)
+instance FormalContext Context where
+    row (Context _ a i) obj = V.filter (\x -> i ! (obj, x)) a
+    col (Context o _ i) att = V.filter (\x -> i ! (x, att)) o
+    up (Context o a i) objs = intersects a rows
+        where rows = V.map (row (Context o a i)) objs
+    down (Context o a i) attrs = intersects o cols
+        where cols = V.map (col (Context o a i)) attrs
+
+    objects (Context o _ _) = o
+    attributes (Context _ a _) = a
+    incidence (Context _ _ i) = i
+
+mkObjs :: [a] -> V.Vector a
+mkObjs = V.fromList
 
 
-boolToCell :: Bool -> String
-boolToCell True = "1"
-boolToCell False = "0"
-
-allRowsMatchAttributeCount :: Incidence -> Int -> Bool
-allRowsMatchAttributeCount inc attributeCount =
-    V.all ((== attributeCount) . V.length) inc
-
-
-formatMatrix :: [[String]] -> String
-formatMatrix rows = unlines (map renderRow rows)
-  where
-    columnWidths = [ maximum (map length currentColumn)| currentColumn <- transpose rows]
-    renderRow currentRow = intercalate " | " (zipWith padRight columnWidths currentRow)
-    padRight width value = value ++ replicate (width - length value) ' '
-
-
-row :: Context -> Object -> Attributes
-row c obj = V.map fst $ V.filter snd (V.zip (attributes c) rowRelation) 
-    where 
-        idx = fromJust $ V.elemIndex obj (objects c)
-        rowRelation = incidence c V.! idx
-        
-
-column :: Context -> Attribute -> Objects
-column c attr = V.map fst $ V.filter snd (V.zip (objects c) colRelation) 
-    where 
-        idx = fromJust $ V.elemIndex attr (attributes c)
-        colRelation = V.map (V.! idx) (incidence c)
+mkAttrs :: [a] -> V.Vector a
+mkAttrs = V.fromList
