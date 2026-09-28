@@ -27,6 +27,7 @@ library
         FormalConceptAnalysis.Concept,
         FormalConceptAnalysis.Algorithm.Algorithm,
         FormalConceptAnalysis.Algorithm.Naive,
+        FormalConceptAnalysis.Algorithm.NextClosure,
         FormalConceptAnalysis.Format.Context,
         FormalConceptAnalysis.Format.CSV,
         FormalConceptAnalysis.Format.Lattice
@@ -55,3 +56,17 @@ test-suite FormalConceptAnalysis-test
         base >=4.18 && <4.19,
         FormalConceptAnalysis ^>=0.1.0.0,
         vector
+
+executable benchmark
+    import:           warnings
+
+    hs-source-dirs:   benchmark
+    main-is:          Main.hs
+
+    build-depends:
+        base >=4.18 && <4.19,
+        FormalConceptAnalysis ^>=0.1.0.0,
+        vector,
+        time
+
+    default-language: Haskell2010
