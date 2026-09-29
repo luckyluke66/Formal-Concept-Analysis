@@ -3,8 +3,9 @@ module Main (main) where
 import FormalConceptAnalysis.Format.CSV (fromCSVFile)
 import FormalConceptAnalysis.Format.Lattice (formatCoverRelation, formatLevels)
 import FormalConceptAnalysis.Context
-import FormalConceptAnalysis.Algorithm.Naive
 
+import qualified FormalConceptAnalysis.Algorithm.Naive as Naive
+import qualified FormalConceptAnalysis.Algorithm.NextClosure as NextClosure
 
 mkContext' :: Either String Context -> Context
 mkContext' (Left e) = error e
@@ -15,7 +16,7 @@ main :: IO ()
 main = do
     result <- fromCSVFile "test/data/sample-context.csv"
     let context = mkContext' result
-    let concepts = allSubsets context
+    let concepts = NextClosure.allSubsets context
 
     print context
     print "_______________"
