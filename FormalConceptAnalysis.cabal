@@ -60,7 +60,7 @@ test-suite FormalConceptAnalysis-test
 executable benchmark
     import:           warnings
 
-    hs-source-dirs:   benchmark
+    hs-source-dirs:   test/benchmark
     main-is:          Main.hs
 
     build-depends:

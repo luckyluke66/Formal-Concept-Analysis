@@ -7,7 +7,9 @@ import qualified FormalConceptAnalysis.Algorithm.Naive as Naive
 import qualified FormalConceptAnalysis.Algorithm.NextClosure as NextClosure
 import qualified Data.Vector as V
 
-import Control.Exception (evaluate)
+
+-- Forces evaluation so the benchmark measures the actual computation time, since Haskell is lazy.
+import Control.Exception (evaluate) 
 import Data.Time.Clock (getCurrentTime, diffUTCTime)
 
 

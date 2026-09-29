@@ -8,8 +8,9 @@ import qualified Data.Set as S
 
 -- | Converts Attributes to a set of attribute indices.
 attributesToSet :: FormalContext ctx => ctx -> Attributes -> S.Set Int
-attributesToSet c ats = S.fromList
-    [ i | i <- [0 .. V.length (attributes c) - 1], attributes c V.! i `V.elem` ats]
+attributesToSet c ats = S.fromList [ i | i <- indices, attributes c V.! i `V.elem` ats]
+  where
+    [0 .. V.length (attributes c) - 1]
 
 
 -- | Converts a set of attribute indices back to Attributes.
@@ -35,12 +36,10 @@ nextClosure :: FormalContext ctx => S.Set Int -> S.Set Int -> ctx -> Maybe Attri
 nextClosure curr atrs c = tryCandidate (S.lookupMax atrs)
   where
     tryCandidate Nothing = Nothing
-    tryCandidate (Just atr) =
-        if atr `S.member` curr
-            then tryCandidate (S.lookupLT atr atrs)
-            else if isLecticCandidate atr curr next
-                then Just (setToAttributes next c)
-                else tryCandidate (S.lookupLT atr atrs)
+    tryCandidate (Just atr)
+      | atr `S.member` curr = tryCandidate (S.lookupLT atr atrs)
+      | isLecticCandidate atr curr next = Just (setToAttributes next c)
+      | otherwise = tryCandidate (S.lookupLT atr atrs)
       where
         next = candidateClosure atr curr c
 
@@ -53,10 +52,7 @@ closedIntents c = go firstIntent
     firstIntent = closeAttr c (mkAttrs [])
 
     go curr = curr `V.cons`
-        case nextClosure (attributesToSet c curr) atrs c of
-            Nothing -> V.empty
-            Just next -> go next
-
+        maybe V.empty go (nextClosure (attributesToSet c curr) atrs c)
 
 -- | Generates all formal concepts using the NextClosure algorithm.
 allSubsets :: FormalContext ctx => ctx -> V.Vector Concept
