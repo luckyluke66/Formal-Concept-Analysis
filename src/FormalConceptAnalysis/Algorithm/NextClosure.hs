@@ -10,7 +10,7 @@ import qualified Data.Set as S
 attributesToSet :: FormalContext ctx => ctx -> Attributes -> S.Set Int
 attributesToSet c ats = S.fromList [ i | i <- indices, attributes c V.! i `V.elem` ats]
   where
-    [0 .. V.length (attributes c) - 1]
+    indices = [0 .. V.length (attributes c) - 1]
 
 
 -- | Converts a set of attribute indices back to Attributes.
